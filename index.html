@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calisthenics-Park – Umfrage</title>
+<style>
+  :root{--bg:#f4f5f2;--card:#fff;--ink:#1d2320;--mute:#68716b;--accent:#e8590c;--accent2:#2b8a3e;--line:#e1e4de;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+  header{background:#1d2320;color:#fff;padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  header h1{font-size:1.1rem;margin:0}
+  nav button{background:none;border:0;color:#cfd6d0;font-size:.95rem;padding:8px 14px;cursor:pointer;border-radius:8px}
+  nav button.active{background:var(--accent);color:#fff}
+  main{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+  h2{margin:0 0 6px;font-size:1.3rem} h3{margin:0 0 12px;font-size:1rem}
+  .mute{color:var(--mute);font-size:.9rem}
+  .q{margin-bottom:22px}
+  .q>label.t{display:block;font-weight:600;margin-bottom:8px}
+  .opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;cursor:pointer}
+  .opt:hover{border-color:var(--accent)}
+  .opt input{accent-color:var(--accent)}
+  .scale{display:flex;gap:8px}
+  .scale label{flex:1;text-align:center;border:1px solid var(--line);border-radius:10px;padding:10px 0;cursor:pointer}
+  .scale input{display:none}
+  .scale input:checked+span{color:#fff}
+  .scale label:has(input:checked){background:var(--accent);border-color:var(--accent);color:#fff}
+  .scale-lbl{display:flex;justify-content:space-between;font-size:.8rem;color:var(--mute);margin-top:4px}
+  textarea,input[type=password],select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+  .btn{background:var(--accent);color:#fff;border:0;padding:11px 22px;border-radius:10px;font-size:1rem;cursor:pointer}
+  .btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn:hover{opacity:.92}
+  .err{color:#c92a2a;font-size:.9rem;margin-top:6px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .kpi b{display:block;font-size:1.7rem}
+  .bar{display:grid;grid-template-columns:130px 1fr 78px;gap:10px;align-items:center;margin:6px 0;font-size:.9rem}
+  .bar .track{background:#edefe9;border-radius:6px;height:20px;overflow:hidden}
+  .bar .fill{height:100%;background:var(--accent);border-radius:6px;transition:width .4s}
+  .bar .fill.g{background:var(--accent2)}
+  .bar span.v{text-align:right;color:var(--mute)}
+  .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .filters select{width:auto;min-width:150px}
+  table{width:100%;border-collapse:collapse;font-size:.82rem}
+  th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#f0f2ed;position:sticky;top:0}
+  .scroll{max-height:380px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+  .banner{background:#fff4e6;border:1px solid #ffd8a8;color:#7c4a03;border-radius:10px;padding:10px 14px;font-size:.88rem;margin-bottom:16px}
+  .cmt{border-left:3px solid var(--accent);padding:4px 12px;margin:8px 0;font-size:.9rem}
+  .cmt small{color:var(--mute)}
+  .hidden{display:none}
+  @media(max-width:560px){.bar{grid-template-columns:100px 1fr 64px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏋️ Calisthenics-Park – Umfrage</h1>
+  <nav>
+    <button id="navSurvey" class="active" onclick="show('survey')">Umfrage</button>
+    <button id="navAdmin" onclick="show('admin')">Auswertung</button>
+  </nav>
+</header>
+<main>
+
+<!-- ========== UMFRAGE ========== -->
+<section id="survey">
+  <div class="card">
+    <h2>Wie wichtig wäre dir ein Calisthenics-Park bei uns?</h2>
+    <p class="mute">Im Rahmen unseres Seminarfach-Projekts untersuchen wir, ob Interesse an einem öffentlichen Calisthenics-Park besteht. Die Umfrage dauert ca. 2 Minuten und ist anonym.</p>
+  </div>
+  <form id="form" class="card" onsubmit="submitForm(event)"></form>
+  <div id="thanks" class="card hidden">
+    <h2>Danke für deine Teilnahme! 🙌</h2>
+    <p class="mute">Deine Antwort wurde gespeichert.</p>
+    <button class="btn sec" onclick="resetForm()">Weitere Antwort abgeben</button>
+  </div>
+</section>
+
+<!-- ========== ADMIN ========== -->
+<section id="admin" class="hidden">
+  <div id="login" class="card">
+    <h2>Admin-Login</h2>
+    <p class="mute">Nur für die Projektgruppe.</p>
+    <input type="password" id="pw" placeholder="Passwort" onkeydown="if(event.key==='Enter')login()">
+    <div id="loginErr" class="err"></div>
+    <p><button class="btn" onclick="login()">Anmelden</button></p>
+  </div>
+
+  <div id="dash" class="hidden">
+    <p class="mute" style="margin:0 0 10px;font-size:.78rem">Demo-Datensatz</p>
+    <div class="filters">
+      <select id="fAge" onchange="render()"></select>
+      <select id="fGender" onchange="render()"></select>
+      <button class="btn sec" onclick="exportCSV()">CSV exportieren</button>
+      <button class="btn sec" onclick="logout()">Abmelden</button>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div id="charts"></div>
+    <div class="card"><h3>Kommentare</h3><div id="comments"></div></div>
+    <div class="card"><h3>Einzelantworten</h3><div class="scroll"><table id="tbl"></table></div></div>
+    <p><button class="btn sec" onclick="clearExtra()">Eigene neue Antworten löschen</button></p>
+  </div>
+</section>
+</main>
+
+<script>
+/* ================= KONFIGURATION ================= */
+const ADMIN_PASSWORD = "seminar2026"; // nur Demo – clientseitig NICHT sicher
+const STORAGE_KEY = "cali_extra_v1";
+
+const AGE   = ["unter 14","14–16","17–19","20–25","26–35","36 und älter"];
+const GENDER= ["männlich","weiblich","divers","keine Angabe"];
+const DIST  = ["Ich wohne in Ilsede","bis 5 km","5–10 km","über 10 km"];
+const SPORT = ["Im Verein","Regelmäßig auf eigene Faust","Gelegentlich","Fast nie"];
+const USAGE = ["Mehrmals pro Woche","Etwa 1× pro Woche","1–2× pro Monat","Eher selten","Gar nicht"];
+const EQUIP = ["Klimmzugstangen","Barren / Dips","Ringe","Monkey Bars","Beleuchtung","Trinkwasserstelle","Sitzgelegenheiten","Überdachung","Fallschutzboden"];
+const SCALE_LABELS = ["Gar nicht","Eher nicht","Neutral","Interessiert","Sehr interessiert"];
+
+const QUESTIONS = [
+  {id:"age",     type:"single", text:"1. Wie alt bist du?", opts:AGE},
+  {id:"gender",  type:"single", text:"2. Welches Geschlecht hast du?", opts:GENDER},
+  {id:"dist",    type:"single", text:"3. Wie weit wohnst du von der Umgebung Ilsede entfernt?", opts:DIST},
+  {id:"sport",   type:"single", text:"4. Wie sportlich aktiv bist du aktuell?", opts:SPORT},
+  {id:"interest",type:"scale",  text:"5. Wie interessiert wärst du an einem Calisthenics-Park in unserer Umgebung?"},
+  {id:"usage",   type:"single", text:"6. Wie oft würdest du den Park voraussichtlich nutzen?", opts:USAGE},
+  {id:"equip",   type:"multi",  text:"7. Welche Ausstattung wäre dir wichtig? (Mehrfachauswahl möglich)", opts:EQUIP},
+];
+
+/* ================= SIMULIERTE DATEN (300) ================= */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const rnd = mulberry32(20261030);
+function wpick(arr,w){const s=w.reduce((a,b)=>a+b,0);let r=rnd()*s;for(let i=0;i<arr.length;i++){r-=w[i];if(r<=0)return i}return arr.length-1}
+function gauss(){return Math.sqrt(-2*Math.log(1-rnd()))*Math.cos(2*Math.PI*rnd())}
+
+const COMMENTS = [
+ "endlich mal was für uns jugendliche hier, in ilsede ist sonst echt nix los",
+ "Fahre aktuell immer nach Peine zum Trainieren, wäre mega wenn das hier ginge",
+ "bitte mit licht!! im winter ist um 5 schon dunkel",
+ "Am besten in der Nähe vom Schulzentrum Groß Ilsede, da kommt jeder gut hin",
+ "Fitnessstudio ist mir zu teuer, das wäre ne gute alternative",
+ "hoffentlich wird das nicht direkt vollgeschmiert und zugemüllt",
+ "Wichtig ist, dass man da auch mit dem Fahrrad oder Bus gut hinkommt, nicht jeder hat ein Auto.",
+ "Als Anwohner hätte ich Bedenken wegen Lärm abends, Standort sollte nicht direkt neben Wohnhäusern sein.",
+ "Mache seit 2 Jahren Calisthenics und trainiere bisher am Spielplatz an der Stange 😅",
+ "Klimmzugstangen in verschiedenen Höhen, damit auch Anfänger was machen können",
+ "Gute Idee, solange die Gemeinde das auch pflegt und nicht nach 2 Jahren verrotten lässt.",
+ "eher nicht so meins, ich geh lieber joggen",
+ "Bänke und Wasser wären nice damit man auch länger bleiben kann",
+ "Könnte man auch mit dem Sportverein zusammen machen, z.B. Trainingszeiten für Anfänger",
+ "würde 100% mit meinen freunden hingehen",
+ "Für mich selbst nichts mehr, aber für die Kinder und Jugendlichen im Ort sehr sinnvoll.",
+ "Überdachung wäre top, dann kann man auch bei Regen",
+ "Bitte vernünftigen Fallschutzboden, kein Kies",
+];
+
+function genSeed(n){
+  const out=[];
+  const start=new Date("2026-10-05T08:00:00+01:00").getTime();
+  const end  =new Date("2026-10-29T20:00:00+01:00").getTime();
+  const ageBase=[3.6,3.9,3.8,3.7,3.3,2.8];
+  const sportMod=[0.2,0.5,0.0,-0.7];
+  const usageRows=[[45,35,15,5,0],[15,35,30,20,0],[3,12,35,40,10],[0,3,15,42,40],[0,0,2,18,80]]; // index = 5-interest
+  const eqW=[85,70,40,35,45,55,40,30,50];
+  for(let i=0;i<n;i++){
+    const age=wpick(AGE,[4,22,26,22,15,11]);
+    const gender=wpick(GENDER,[52,43,3,2]);
+    const dist=wpick(DIST,[45,27,17,11]);
+    const sport=wpick(SPORT,[age<=2?34:20, age<=3?30:24, 26, age>=4?26:14]);
+    let v=ageBase[age]+sportMod[sport]+(gender===0?0.15:0)+(dist===3?-0.2:0)+gauss()*0.9;
+    const interest=Math.max(1,Math.min(5,Math.round(v)));
+    let usage=wpick(USAGE,usageRows[5-interest]);
+    if(dist===3 && usage<3 && rnd()<0.4) usage++;
+    const equip=[];
+    EQUIP.forEach((e,j)=>{ let p=eqW[j]/100; if(interest<=2)p*=0.45; if(rnd()<p)equip.push(e)});
+    if(interest>=3 && equip.length===0) equip.push("Klimmzugstangen");
+    const ts=new Date(start+rnd()*(end-start)).toISOString();
+    const comment = rnd()<0.2 ? COMMENTS[Math.floor(rnd()*COMMENTS.length)] : "";
+    out.push({id:i+1,ts,age:AGE[age],gender:GENDER[gender],dist:DIST[dist],sport:SPORT[sport],interest,usage:USAGE[usage],equip,comment,sim:true});
+  }
+  return out.sort((a,b)=>a.ts.localeCompare(b.ts)).map((r,i)=>({...r,id:i+1}));
+}
+const SEED = genSeed(150);
+
+/* ================= STORAGE ================= */
+function getExtra(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}catch(e){return []}}
+function setExtra(a){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(a))}catch(e){}}
+function allData(){return SEED.concat(getExtra())}
+
+/* ================= UMFRAGE-FORMULAR ================= */
+function buildForm(){
+  const f=document.getElementById("form");
+  let h="";
+  QUESTIONS.forEach(q=>{
+    h+=`<div class="q"><label class="t">${q.text}</label>`;
+    if(q.type==="single") q.opts.forEach(o=>h+=`<label class="opt"><input type="radio" name="${q.id}" value="${o}" required> ${o}</label>`);
+    if(q.type==="multi")  q.opts.forEach(o=>h+=`<label class="opt"><input type="checkbox" name="${q.id}" value="${o}"> ${o}</label>`);
+    if(q.type==="scale"){
+      h+=`<div class="scale">`+[1,2,3,4,5].map(n=>`<label><input type="radio" name="interest" value="${n}" required><span>${n}</span></label>`).join("")+`</div>`;
+      h+=`<div class="scale-lbl"><span>${SCALE_LABELS[0]}</span><span>${SCALE_LABELS[4]}</span></div>`;
+    }
+    h+=`</div>`;
+  });
+  h+=`<div class="q"><label class="t">Möchtest du noch etwas anmerken? (optional)</label><textarea id="comment" rows="3" maxlength="300"></textarea></div>
+      <button class="btn" type="submit">Antwort absenden</button>`;
+  f.innerHTML=h;
+}
+function submitForm(e){
+  e.preventDefault();
+  const fd=new FormData(e.target);
+  const extra=getExtra();
+  const rec={
+    id:SEED.length+extra.length+1, ts:new Date().toISOString(),
+    age:fd.get("age"),gender:fd.get("gender"),dist:fd.get("dist"),sport:fd.get("sport"),
+    interest:+fd.get("interest"),usage:fd.get("usage"),equip:fd.getAll("equip"),
+    comment:(document.getElementById("comment").value||"").trim(),sim:false
+  };
+  extra.push(rec); setExtra(extra);
+  document.getElementById("form").classList.add("hidden");
+  document.getElementById("thanks").classList.remove("hidden");
+  window.scrollTo(0,0);
+}
+function resetForm(){
+  document.getElementById("form").reset();
+  document.getElementById("form").classList.remove("hidden");
+  document.getElementById("thanks").classList.add("hidden");
+}
+
+/* ================= NAVIGATION / LOGIN ================= */
+function show(s){
+  document.getElementById("survey").classList.toggle("hidden",s!=="survey");
+  document.getElementById("admin").classList.toggle("hidden",s!=="admin");
+  document.getElementById("navSurvey").classList.toggle("active",s==="survey");
+  document.getElementById("navAdmin").classList.toggle("active",s==="admin");
+  if(s==="admin" && sessionStorage.getItem("adm")==="1") openDash();
+}
+function login(){
+  if(document.getElementById("pw").value===ADMIN_PASSWORD){
+    try{sessionStorage.setItem("adm","1")}catch(e){}
+    openDash();
+  } else document.getElementById("loginErr").textContent="Falsches Passwort.";
+}
+function logout(){try{sessionStorage.removeItem("adm")}catch(e){} document.getElementById("dash").classList.add("hidden");document.getElementById("login").classList.remove("hidden");document.getElementById("pw").value="";}
+function openDash(){
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("dash").classList.remove("hidden");
+  const fa=document.getElementById("fAge"),fg=document.getElementById("fGender");
+  if(!fa.options.length){
+    fa.innerHTML=`<option value="">Alle Altersgruppen</option>`+AGE.map(a=>`<option>${a}</option>`).join("");
+    fg.innerHTML=`<option value="">Alle Geschlechter</option>`+GENDER.map(a=>`<option>${a}</option>`).join("");
+  }
+  render();
+}
+function clearExtra(){ if(confirm("Alle selbst abgegebenen neuen Antworten löschen? (Die 150 Beispieldaten bleiben.)")){setExtra([]);render();} }
+
+/* ================= AUSWERTUNG ================= */
+const pct=(n,t)=>t?Math.round(n/t*1000)/10:0;
+const fmt=n=>String(n).replace(".",",");
+function bars(labels,counts,total,cls){
+  return labels.map((l,i)=>`<div class="bar"><span>${l}</span><div class="track"><div class="fill ${cls||""}" style="width:${pct(counts[i],total)}%"></div></div><span class="v">${counts[i]} (${fmt(pct(counts[i],total))} %)</span></div>`).join("");
+}
+function countBy(data,key,labels){return labels.map(l=>data.filter(r=>r[key]===l).length)}
+function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
+
+function render(){
+  const fa=document.getElementById("fAge").value, fg=document.getElementById("fGender").value;
+  const all=allData();
+  const d=all.filter(r=>(!fa||r.age===fa)&&(!fg||r.gender===fg));
+  const n=d.length;
+  const mean=avg(d.map(r=>r.interest));
+  const intPos=d.filter(r=>r.interest>=4).length;
+  const freqUse=d.filter(r=>r.usage===USAGE[0]||r.usage===USAGE[1]).length;
+  document.getElementById("kpis").innerHTML=
+    `<div class="kpi"><b>${n}</b>Teilnehmer${(fa||fg)?" (gefiltert)":""}</div>
+     <div class="kpi"><b>${fmt(mean.toFixed(2))}</b>Ø Interesse (1–5)</div>
+     <div class="kpi"><b>${fmt(pct(intPos,n))} %</b>interessiert (4–5)</div>
+     <div class="kpi"><b>${fmt(pct(freqUse,n))} %</b>würden ≥ 1×/Woche nutzen</div>`;
+
+  let h="";
+  h+=`<div class="card"><h3>Altersverteilung</h3>${bars(AGE,countBy(d,"age",AGE),n)}</div>`;
+  h+=`<div class="card"><h3>Geschlecht</h3>${bars(GENDER,countBy(d,"gender",GENDER),n)}</div>`;
+  h+=`<div class="card"><h3>Entfernung von Ilsede</h3>${bars(DIST,countBy(d,"dist",DIST),n)}</div>`;
+  h+=`<div class="card"><h3>Sportliche Aktivität</h3>${bars(SPORT,countBy(d,"sport",SPORT),n)}</div>`;
+  const ic=[1,2,3,4,5].map(k=>d.filter(r=>r.interest===k).length);
+  h+=`<div class="card"><h3>Interesse an einem Calisthenics-Park</h3>${bars(["1 – "+SCALE_LABELS[0],"2 – "+SCALE_LABELS[1],"3 – "+SCALE_LABELS[2],"4 – "+SCALE_LABELS[3],"5 – "+SCALE_LABELS[4]],ic,n,"g")}</div>`;
+  h+=`<div class="card"><h3>Geplante Nutzungshäufigkeit</h3>${bars(USAGE,countBy(d,"usage",USAGE),n)}</div>`;
+  const ec=EQUIP.map(e=>d.filter(r=>r.equip.includes(e)).length);
+  const order=EQUIP.map((e,i)=>i).sort((a,b)=>ec[b]-ec[a]);
+  h+=`<div class="card"><h3>Gewünschte Ausstattung (Mehrfachnennung, Basis: ${n})</h3>${bars(order.map(i=>EQUIP[i]),order.map(i=>ec[i]),n)}</div>`;
+
+  // Kreuzauswertung (nur bei Gesamtansicht sinnvoll, aber auch gefiltert ok)
+  const byAge=AGE.map(a=>{const x=d.filter(r=>r.age===a).map(r=>r.interest);return x.length?avg(x):0});
+  h+=`<div class="card"><h3>Ø Interesse nach Altersgruppe (Skala 1–5)</h3>`+AGE.map((a,i)=>`<div class="bar"><span>${a}</span><div class="track"><div class="fill g" style="width:${byAge[i]/5*100}%"></div></div><span class="v">${byAge[i]?fmt(byAge[i].toFixed(2)):"–"}</span></div>`).join("")+`</div>`;
+  const byG=GENDER.map(a=>{const x=d.filter(r=>r.gender===a).map(r=>r.interest);return x.length?avg(x):0});
+  h+=`<div class="card"><h3>Ø Interesse nach Geschlecht</h3>`+GENDER.map((a,i)=>`<div class="bar"><span>${a}</span><div class="track"><div class="fill g" style="width:${byG[i]/5*100}%"></div></div><span class="v">${byG[i]?fmt(byG[i].toFixed(2)):"–"}</span></div>`).join("")+`</div>`;
+  const bySp=SPORT.map(a=>{const x=d.filter(r=>r.sport===a).map(r=>r.interest);return x.length?avg(x):0});
+  h+=`<div class="card"><h3>Ø Interesse nach sportlicher Aktivität</h3>`+SPORT.map((a,i)=>`<div class="bar"><span>${a}</span><div class="track"><div class="fill g" style="width:${bySp[i]/5*100}%"></div></div><span class="v">${bySp[i]?fmt(bySp[i].toFixed(2)):"–"}</span></div>`).join("")+`</div>`;
+
+  // Teilnahmen pro Tag
+  const days={};d.forEach(r=>{const k=r.ts.slice(0,10);days[k]=(days[k]||0)+1});
+  const keys=Object.keys(days).sort();const mx=Math.max(1,...Object.values(days));
+  h+=`<div class="card"><h3>Teilnahmen pro Tag</h3><div style="display:flex;align-items:flex-end;gap:3px;height:110px">`+keys.map(k=>`<div title="${k}: ${days[k]}" style="flex:1;background:var(--accent);height:${days[k]/mx*100}%;border-radius:3px 3px 0 0"></div>`).join("")+`</div><div class="mute" style="display:flex;justify-content:space-between"><span>${keys[0]||""}</span><span>${keys[keys.length-1]||""}</span></div></div>`;
+  document.getElementById("charts").innerHTML=h;
+
+  const cm=d.filter(r=>r.comment).slice().reverse();
+  document.getElementById("comments").innerHTML=cm.length?cm.map(r=>`<div class="cmt">${esc(r.comment)}<br><small>${r.age}, ${r.gender} · Interesse ${r.interest}/5</small></div>`).join(""):'<span class="mute">Keine Kommentare.</span>';
+
+  document.getElementById("tbl").innerHTML=
+    `<tr><th>#</th><th>Datum</th><th>Alter</th><th>Geschl.</th><th>Entf.</th><th>Sport</th><th>Int.</th><th>Nutzung</th><th>Ausstattung</th></tr>`+
+    d.slice().reverse().map(r=>`<tr><td>${r.id}</td><td>${new Date(r.ts).toLocaleDateString("de-DE")}</td><td>${r.age}</td><td>${r.gender}</td><td>${r.dist}</td><td>${r.sport}</td><td>${r.interest}</td><td>${r.usage}</td><td>${r.equip.join(", ")}</td></tr>`).join("");
+}
+function esc(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+function exportCSV(){
+  const rows=[["id","datum","alter","geschlecht","entfernung","sport","interesse","nutzung","ausstattung","kommentar","simuliert"]];
+  allData().forEach(r=>rows.push([r.id,r.ts,r.age,r.gender,r.dist,r.sport,r.interest,r.usage,r.equip.join("|"),r.comment,r.sim?"ja":"nein"]));
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(";")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));
+  a.download="calisthenics_umfrage.csv";a.click();
+}
+
+buildForm();
+</script>
+</body>
+</html>
